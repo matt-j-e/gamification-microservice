@@ -20,7 +20,7 @@ public class BadgeCard {
   private Long badgeId;
   private Long userId;
   @EqualsAndHashCode.Exclude
-  private Long badgeTimestamp;
+  private long badgeTimestamp;
   private BadgeType badgeType;
 
   public BadgeCard(final Long userId, final BadgeType badgeType) {

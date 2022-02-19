@@ -26,7 +26,7 @@ public class GameServiceImpl implements GameService {
   private final List<BadgeProcessor> badgeProcessors;
 
   @Override
-  public GameResult newAttemptForUser(ChallengeSolvedDTO challenge) {
+  public GameResult newAttemptForUser(final ChallengeSolvedDTO challenge) {
     if (challenge.isCorrect()) {
       ScoreCard scoreCard = new ScoreCard(challenge.getUserId(), challenge.getAttemptId());
       scoreRepository.save(scoreCard);
@@ -43,7 +43,7 @@ public class GameServiceImpl implements GameService {
               "User {} does not get a score.",
               challenge.getAttemptId(),
               challenge.getUserAlias());
-      return new GameResult(0, List.of())
+      return new GameResult(0, List.of());
     }
   }
 
@@ -67,11 +67,11 @@ public class GameServiceImpl implements GameService {
 
     // Calls the badge processors for badges that the user doesn't yet have.
     List<BadgeCard> newBadgeCards = badgeProcessors.stream()
-            .filter(bp -> bp.processForOptionalBadge(totalScore, scoreCardList, solvedChallenge))
+            .filter(bp -> !alreadyGotBadges.contains(bp.badgeType()))
+            .map(bp -> bp.processForOptionalBadge(totalScore, scoreCardList, solvedChallenge))
             .flatMap(Optional::stream)
-                    .map(badgeType -> new BadgeCard(solvedChallenge.getUserId(), badgeType)
-                    )
-                    .collect(Collectors.toList());
+            .map(badgeType -> new BadgeCard(solvedChallenge.getUserId(), badgeType))
+            .collect(Collectors.toList());
 
     badgeRepository.saveAll(newBadgeCards);
 
