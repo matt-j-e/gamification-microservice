@@ -72,5 +72,4 @@ public class GameServiceTest {
     //then - shouldn't score anything
     then(gameResult).isEqualTo(new GameResult(0, List.of()));
   }
-
 }
