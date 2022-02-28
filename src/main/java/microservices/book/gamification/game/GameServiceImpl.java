@@ -2,13 +2,14 @@ package microservices.book.gamification.game;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import microservices.book.gamification.challenge.ChallengeSolvedDTO;
+import microservices.book.gamification.challenge.ChallengeSolvedEvent;
 import microservices.book.gamification.game.badgeprocessors.BadgeProcessor;
 import microservices.book.gamification.game.domain.BadgeCard;
 import microservices.book.gamification.game.domain.BadgeType;
 import microservices.book.gamification.game.domain.ScoreCard;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,8 @@ public class GameServiceImpl implements GameService {
   private final List<BadgeProcessor> badgeProcessors;
 
   @Override
-  public GameResult newAttemptForUser(final ChallengeSolvedDTO challenge) {
+  @Transactional
+  public GameResult newAttemptForUser(final ChallengeSolvedEvent challenge) {
     if (challenge.isCorrect()) {
       ScoreCard scoreCard = new ScoreCard(challenge.getUserId(), challenge.getAttemptId());
       scoreRepository.save(scoreCard);
@@ -51,7 +53,7 @@ public class GameServiceImpl implements GameService {
    * Checks the total score and the different score cards obtained
    * to give new badges in cases where their conditions are met.
    */
-  private List<BadgeCard> processForBadges(final ChallengeSolvedDTO solvedChallenge) {
+  private List<BadgeCard> processForBadges(final ChallengeSolvedEvent solvedChallenge) {
 
     Optional<Integer> optTotalScore = scoreRepository.getTotalScoreForUser(solvedChallenge.getUserId());
     if (optTotalScore.isEmpty()) return Collections.emptyList();
